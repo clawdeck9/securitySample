@@ -8,7 +8,7 @@ import java.util.Collection;
 public interface AccountService {
     AppRole addAppRole(String name);
     AppUser addAppUser(String name, String password);
-    void addRoleToUser(AppUser user, AppRole role);
+    void addRoleToUser(String userName, String roleName);
     AppUser findUserByName(String name);
     Collection<AppUser> findAll();
 }

@@ -28,13 +28,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void addRoleToUser(AppUser user, AppRole role) {
-        user.getRoles().add(role);
+    public void addRoleToUser(String user, String role) {
+        appUserRepository.findByName(user).getRoles().add(appRoleRepository.findByName(role));
     }
 
     @Override
     public AppUser findUserByName(String name) {
-        return appUserRepository.findByAppUserName(name);
+        return appUserRepository.findByName(name);
     }
 
     @Override
