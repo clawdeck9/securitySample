@@ -1,7 +1,7 @@
 package com.cluster9.securitySample.services;
 
-import com.cluster9.securitySample.Entities.AppRole;
-import com.cluster9.securitySample.Entities.AppUser;
+import com.cluster9.securitySample.entities.AppRole;
+import com.cluster9.securitySample.entities.AppUser;
 
 import java.util.Collection;
 

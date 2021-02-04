@@ -1,9 +1,10 @@
 package com.cluster9.securitySample.services;
 
-import com.cluster9.securitySample.Entities.AppRole;
-import com.cluster9.securitySample.Entities.AppUser;
+import com.cluster9.securitySample.entities.AppRole;
+import com.cluster9.securitySample.entities.AppUser;
 import com.cluster9.securitySample.persistence.AppRoleRepository;
 import com.cluster9.securitySample.persistence.AppUserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ public class AccountServiceImpl implements AccountService {
 
     AppUserRepository appUserRepository;
     AppRoleRepository appRoleRepository;
+    PasswordEncoder passwordEncoder;
 
     @Override
     public AppRole addAppRole(String name){
@@ -24,7 +26,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AppUser addAppUser(String name, String password) {
-        return appUserRepository.save(new AppUser(name, password));
+        return appUserRepository.save(new AppUser(name, passwordEncoder.encode(password)));
     }
 
     @Override
@@ -42,9 +44,10 @@ public class AccountServiceImpl implements AccountService {
         return appUserRepository.findAll();
     }
 
-    public AccountServiceImpl(AppUserRepository appUserRepository, AppRoleRepository appRoleRepository) {
+    public AccountServiceImpl(AppUserRepository appUserRepository, AppRoleRepository appRoleRepository, PasswordEncoder passwordEncoder) {
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
+        this.passwordEncoder = passwordEncoder;
 
     }
 }

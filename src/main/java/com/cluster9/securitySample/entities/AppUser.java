@@ -1,4 +1,6 @@
-package com.cluster9.securitySample.Entities;
+package com.cluster9.securitySample.entities;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,10 +11,11 @@ import javax.persistence.*;
 public class AppUser {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 	private String name;
 
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
 	private Collection<AppRole> roles = new ArrayList<AppRole>();
 
 	public AppUser() {

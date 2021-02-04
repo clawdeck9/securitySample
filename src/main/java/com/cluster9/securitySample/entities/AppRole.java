@@ -1,4 +1,4 @@
-package com.cluster9.securitySample.Entities;
+package com.cluster9.securitySample.entities;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
