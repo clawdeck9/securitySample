@@ -18,6 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 
 public class AuthorizFilter extends OncePerRequestFilter {
 
@@ -38,17 +43,34 @@ public class AuthorizFilter extends OncePerRequestFilter {
         //if authorization bearer is ok, add all the credentials to the auth manager.
         String authHeader = request.getHeader("authorization");
         if(authHeader != null){;
-            //logger.debug("authorization header = "+authHeader);
-            String username = authHeader.substring(7);
-            AppUser appUser = accountService.findUserByName(username);
-            ArrayList<GrantedAuthority> authorities = new ArrayList<>();
-            appUser.getRoles().forEach( role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(appUser.getName(), null, authorities);
+            logger.debug("authorization header = "+authHeader);
+            // if the jwt does not start with the bearer constant, stop here
+            if(! authHeader.startsWith(SecurityConst.TOKEN_PREFIX)){
+                filterChain.doFilter(request, response);
+                return;
+            }
+            // decode jwt and create a auth token for further methods access control:
+            String trialJwt = authHeader.substring(7);
+            // the Jwts.parser() checks the jwt validity? at least, it requires the SECRET string
+            Claims claims = Jwts.parser()
+                    .setSigningKey(SecurityConst.SECRET)
+                    //.parseClaimsJws(trialJwt.replace(SecurityConst.TOKEN_PREFIX, ""))// suppress the prefix in the token string
+                    .parseClaimsJws(trialJwt)
+                    .getBody();
+            //logger.debug("claims from the authorizationFilter = " + claims);
+            String username = claims.getSubject();
+            ArrayList<Map<String, String>> roles = (ArrayList<Map<String,String>>) claims.get("roles");
+            Collection<GrantedAuthority> authorities = new ArrayList<>();
+            roles.forEach(r -> authorities.add(new SimpleGrantedAuthority(r.get("authority"))));
+            // if the user is not validated, the filter is called in a 'anonymous user' context and the req will be rejected for all authentication-required methods
+
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(token);
-            System.out.println("context:"+SecurityContextHolder.getContext().toString());
+            logger.debug("context:"+SecurityContextHolder.getContext().toString());
         } else {
-            logger.debug("the authorization filter do not know this username ");
+            logger.debug("there is no authorization header");
         }
         filterChain.doFilter(request, response);
+        return;
     }
 }
